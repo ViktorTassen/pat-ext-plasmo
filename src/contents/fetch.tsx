@@ -8,8 +8,6 @@ export const config: PlasmoCSConfig = {
 }
 
 
-
-
 const Fetch = () => {
   console.log("PAT3 fetch")
   // Intercept fetch requests
@@ -19,13 +17,22 @@ const Fetch = () => {
 
     // Check if the URL matches our pattern
     const url = typeof input === "string" ? input : input.url
-    console.log(url)
-    if (url.includes("relay.amazon.com")) {
+    if (url.includes("api/drivers")) {
+      try {
+        // Clone and parse JSON directly
+        const json = await response.clone().json()
+        console.log("PAT3 Response data drivers:", json.data)
+      } catch (error) {
+        console.error("PAT3 Error processing fetch response:", error)
+      }
+    }
+
+    if (url.includes("/api/loadboard/orders/get")) {
       try {
         // Clone and parse JSON directly
         const json = await response.clone().json()
         console.log("PAT3 Intercepted fetch response from:", url)
-        console.log("PAT3 Response data:", json)
+        console.log("PAT3 Response data orders:", json.truckCapacityOrders)
       } catch (error) {
         console.error("PAT3 Error processing fetch response:", error)
       }
