@@ -26,7 +26,7 @@ export const getMountPoint = () => {
   if (!isOrdersPage()) return null
 
   // Find the order table element
-  return document.getElementById("show-order-table")
+  return document.getElementsByClassName("order-id")
 }
 
 // Plasmo will automatically call this function when the DOM changes
@@ -38,7 +38,7 @@ export const mount = async () => {
 export const getInlineAnchor = () => {
   return {
     element: getMountPoint(),
-    insertPosition: "afterbegin"
+    insertPosition: "beforebegin"
   }
 }
 
@@ -51,7 +51,7 @@ const ProcessOrdersButton = () => {
     <button
       onClick={handleClick}
       className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition-colors mb-2">
-      Process Orders
+      x
     </button>
   )
 }
