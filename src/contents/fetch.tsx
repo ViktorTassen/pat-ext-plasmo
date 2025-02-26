@@ -33,6 +33,7 @@ const Fetch = () => {
         const json = await response.clone().json()
         console.log("PAT3 Intercepted fetch response from:", url)
         console.log("PAT3 Response data orders:", json.truckCapacityOrders)
+        
       } catch (error) {
         console.error("PAT3 Error processing fetch response:", error)
       }

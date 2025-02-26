@@ -1,5 +1,6 @@
 import cssText from "data-text:~style.css"
-import type { PlasmoCSConfig } from "plasmo"
+import type { PlasmoCSConfig, PlasmoGetInlineAnchorList } from "plasmo"
+import { useStorage } from "@plasmohq/storage/hook"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://relay.amazon.com/loadboard/*"],
@@ -21,39 +22,76 @@ const isOrdersPage = () => {
   )
 }
 
-export const getMountPoint = () => {
-  // Only proceed if we're on the orders page
-  if (!isOrdersPage()) return null
-
-  // Find the order table element
-  return document.getElementsByClassName("order-id")
+// This function returns a list of elements to inject content before
+export const getInlineAnchorList: PlasmoGetInlineAnchorList = () => {
+  const orderIdElements = document.getElementsByClassName("order-id");
+  hideOriginalCheckboxes();
+  return Array.from(orderIdElements).map(element => ({
+    element,
+    position: "beforebegin"
+  }))
 }
 
 // Plasmo will automatically call this function when the DOM changes
 export const mount = async () => {
-  // Simply return whether we're on the orders page
+  // Only mount if we're on the orders page
   return isOrdersPage()
 }
 
-export const getInlineAnchor = () => {
-  return {
-    element: getMountPoint(),
-    insertPosition: "beforebegin"
-  }
+
+
+// Function to hide original checkboxes
+const hideOriginalCheckboxes = () => {
+  document.querySelectorAll('label').forEach(label => {
+    if (label.querySelector('[role="checkbox"]')) {
+      label.style.display = 'none'; // Hide the label
+    }
+  })
 }
 
-const AddCheckboxes = () => {
-  const handleClick = () => {
-    console.log("Process orders clicked!")
+
+// Storage key for the array of selected order IDs
+const SELECTED_ORDERS_KEY = "selectedOrders"
+
+const Checkbox = ({ anchor }) => {
+  // Extract the order ID from the element text content
+  const orderIdElement = anchor.element
+  const orderId = orderIdElement.textContent.trim()
+  
+  // Use the storage hook to manage selected orders
+  const [selectedOrders, setSelectedOrders] = useStorage<string[]>(
+    SELECTED_ORDERS_KEY,
+    []
+  )
+  
+  // Check if this order ID is in the array
+  const isChecked = selectedOrders?.includes(orderId) || false
+  
+  const handleChange = (e) => {
+    const newState = e.target.checked
+    
+    if (newState) {
+      // Add order ID to array if not already present
+      if (!selectedOrders?.includes(orderId)) {
+        setSelectedOrders([...(selectedOrders || []), orderId])
+      }
+    } else {
+      // Remove order ID from array
+      setSelectedOrders((selectedOrders || []).filter(id => id !== orderId))
+    }
   }
 
   return (
-    <button
-      onClick={handleClick}
-      className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition-colors">
-      Checkbox
-    </button>
+    <span className="inline-flex items-center mr-2">
+      <input
+        type="checkbox"
+        checked={isChecked}
+        onChange={handleChange}
+        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+        title={`Select order ${orderId}`}
+      />
+    </span>
   )
 }
 
-export default AddCheckboxes
+export default Checkbox
