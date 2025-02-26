@@ -1,24 +1,11 @@
 import cssText from "data-text:~style.css"
 import type { PlasmoCSConfig } from "plasmo"
 
-import { CountButton } from "~features/count-button"
-
 export const config: PlasmoCSConfig = {
-  matches: ["<all_urls>"]
+  matches: ["https://relay.amazon.com/loadboard/*"],
+  all_frames: true
 }
 
-/**
- * Generates a style element with adjusted CSS to work correctly within a Shadow DOM.
- *
- * Tailwind CSS relies on `rem` units, which are based on the root font size (typically defined on the <html>
- * or <body> element). However, in a Shadow DOM (as used by Plasmo), there is no native root element, so the
- * rem values would reference the actual page's root font size—often leading to sizing inconsistencies.
- *
- * To address this, we:
- * 1. Replace the `:root` selector with `:host(plasmo-csui)` to properly scope the styles within the Shadow DOM.
- * 2. Convert all `rem` units to pixel values using a fixed base font size, ensuring consistent styling
- *    regardless of the host page's font size.
- */
 export const getStyle = (): HTMLStyleElement => {
   const baseFontSize = 16
 
@@ -26,23 +13,78 @@ export const getStyle = (): HTMLStyleElement => {
   const remRegex = /([\d.]+)rem/g
   updatedCssText = updatedCssText.replace(remRegex, (match, remValue) => {
     const pixelsValue = parseFloat(remValue) * baseFontSize
-
     return `${pixelsValue}px`
   })
 
   const styleElement = document.createElement("style")
-
   styleElement.textContent = updatedCssText
-
   return styleElement
 }
 
-const PlasmoOverlay = () => {
+// Function to check if we're on the orders page
+const isOrdersPage = () => {
   return (
-    <div className="plasmo-z-50 plasmo-flex plasmo-fixed plasmo-top-32 plasmo-right-8">
-      <CountButton />
-    </div>
+    window.location.pathname === "/loadboard/orders" ||
+    window.location.href.includes("/loadboard/orders")
   )
 }
 
-export default PlasmoOverlay
+export const getMountPoint = () => {
+  // Only proceed if we're on the orders page
+  if (!isOrdersPage()) return null
+
+  // Find the order table element
+  return document.getElementById("show-order-table")
+}
+
+// Set up a MutationObserver to handle SPA navigation and tab changes
+let observer = null
+
+export const mount = async () => {
+  // Set up observer to watch for DOM changes
+  if (!observer) {
+    observer = new MutationObserver((mutations, obs) => {
+      // Check if we're on the orders page and the table exists
+      if (isOrdersPage()) {
+        const mountPoint = getMountPoint()
+        if (mountPoint) {
+          // Keep observing to handle tab changes
+          return true
+        }
+      }
+      return false
+    })
+
+    // Observe the entire document for changes
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    })
+  }
+
+  // Initial check
+  return isOrdersPage()
+}
+
+export const getInlineAnchor = () => {
+  return {
+    element: getMountPoint(),
+    insertPosition: "afterbegin"
+  }
+}
+
+const ProcessOrdersButton = () => {
+  const handleClick = () => {
+    console.log("Process orders clicked!")
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition-colors ml-4">
+      Process Orders
+    </button>
+  )
+}
+
+export default ProcessOrdersButton
