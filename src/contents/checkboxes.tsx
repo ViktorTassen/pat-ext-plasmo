@@ -3,7 +3,8 @@ import type { PlasmoCSConfig, PlasmoGetInlineAnchorList } from "plasmo"
 import { useStorage } from "@plasmohq/storage/hook"
 import { Storage } from "@plasmohq/storage"
 import { Checkbox } from "~components/ui/checkbox"
-const storage = new Storage({area: "local"})
+import { useEffect, useState } from "react"
+import { cn } from "~/lib/utils"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://relay.amazon.com/loadboard/*"],
@@ -17,7 +18,6 @@ export const getStyle = (): HTMLStyleElement => {
   return styleElement
 }
 
-
 // This function returns a list of elements to inject content before
 export const getInlineAnchorList: PlasmoGetInlineAnchorList = async () => {
   const anchors = document.querySelectorAll('.order-id')
@@ -25,10 +25,7 @@ export const getInlineAnchorList: PlasmoGetInlineAnchorList = async () => {
       element,
       insertPosition: "beforebegin",
   }))
-
-};
-
-
+}
 
 // Function to hide original checkboxes
 const hideOriginalCheckboxes = () => {
@@ -39,9 +36,14 @@ const hideOriginalCheckboxes = () => {
   })
 }
 
-
 const AddCheckboxes = ({ anchor }) => {
-  hideOriginalCheckboxes();
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => {
+    hideOriginalCheckboxes()
+    setMounted(true)
+  }, [])
+  
   // Extract the order ID from the element text content
   const orderIdElement = anchor.element
   const orderId = orderIdElement.textContent.trim()
@@ -52,30 +54,46 @@ const AddCheckboxes = ({ anchor }) => {
     instance: new Storage({
       area: "local"
     }),
-  }, [])
+
+  })
   
   // Check if this order ID is in the array
   const isChecked = selectedOrders?.includes(orderId) || false
   
-  const handleChange = (e) => {
-    const newState = e.target.checked
+  // This is the correct way to handle checkbox changes with Radix UI
+  const handleCheckedChange = (checked) => {
+    console.log("Checkbox changed:", orderId, checked)
     
-    if (newState) {
+    if (checked) {
       // Add order ID to array if not already present
       if (!selectedOrders?.includes(orderId)) {
-        setSelectedOrders([...(selectedOrders || []), orderId])
+        const newSelectedOrders = [...(selectedOrders || []), orderId]
+        console.log("Adding to selected orders:", newSelectedOrders)
+        setSelectedOrders(newSelectedOrders)
       }
     } else {
       // Remove order ID from array
-      setSelectedOrders((selectedOrders || []).filter(id => id !== orderId))
+      const newSelectedOrders = (selectedOrders || []).filter(id => id !== orderId)
+      console.log("Removing from selected orders:", newSelectedOrders)
+      setSelectedOrders(newSelectedOrders)
     }
   }
 
+  if (!mounted) return null
+
   return (
-    <span className="inline-flex items-center">
+    <span 
+      className={cn(
+        "inline-flex items-center",
+        "z-10 relative" // Ensure our checkbox is above other elements
+      )}
+      onClick={(e) => e.stopPropagation()} // Prevent click from propagating
+    >
       <Checkbox 
+        id={`checkbox-${orderId}`}
         checked={isChecked}
-        onChange={handleChange}
+        onCheckedChange={handleCheckedChange}
+        className="cursor-pointer"
       />
     </span>
   )
