@@ -2,7 +2,6 @@ import cssText from "data-text:~style.css"
 import type { PlasmoCSConfig, PlasmoGetInlineAnchorList } from "plasmo"
 import { useStorage } from "@plasmohq/storage/hook"
 import { Storage } from "@plasmohq/storage"
-import { useEffect, useState } from "react"
 import { cn } from "~lib/utils"
 import { Checkbox } from "~/components/Checkbox"
 import { ThemeProvider } from "@mui/material/styles"
@@ -39,58 +38,24 @@ export const getInlineAnchorList: PlasmoGetInlineAnchorList = async () => {
 
 // Function to hide original checkboxes - improved version
 const hideOriginalCheckboxes = () => {
-  // More specific selector to target only the Amazon checkboxes
-  const checkboxes = document.querySelectorAll('label[for^="checkbox-"]')
-  checkboxes.forEach(label => {
+  document.querySelectorAll('label').forEach(label => {
     if (label.querySelector('[role="checkbox"]')) {
       label.style.display = 'none'; // Hide the label containing the checkbox
-    }
-  })
-  
-  // Also hide any standalone checkboxes that might be present
-  document.querySelectorAll('[role="checkbox"]').forEach(checkbox => {
-    const parent = checkbox.closest('label:not([id^="checkbox-"])')
-    if (parent) {
-      parent.style.display = 'none';
     }
   })
 }
 
 const AddCheckboxes = ({ anchor }) => {
+
+  hideOriginalCheckboxes();
+  
   // Ensure our custom checkbox container has proper z-index
   if (anchor.element.parentElement.querySelector('plasmo-csui')?.shadowRoot) {
     const container = anchor.element.parentElement.querySelector('plasmo-csui').shadowRoot.querySelector('#plasmo-shadow-container')
     if (container) {
       container.style.zIndex = "20"
-      container.style.position = "relative"
-      container.style.display = "inline-block"
     }
   }
-  
-  const [mounted, setMounted] = useState(false)
-  
-  useEffect(() => {
-    // Apply the hiding of original checkboxes when component mounts
-    hideOriginalCheckboxes()
-    
-    // Set up a mutation observer to hide checkboxes that might be added dynamically
-    const observer = new MutationObserver((mutations) => {
-      hideOriginalCheckboxes()
-    })
-    
-    // Start observing the document with the configured parameters
-    observer.observe(document.body, { 
-      childList: true, 
-      subtree: true 
-    })
-    
-    setMounted(true)
-    
-    // Clean up observer on component unmount
-    return () => {
-      observer.disconnect()
-    }
-  }, [])
   
   // Extract the order ID from the element text content
   const orderIdElement = anchor.element
@@ -126,7 +91,6 @@ const AddCheckboxes = ({ anchor }) => {
     }
   }
 
-  if (!mounted) return null
 
   return (
     <CacheProvider value={styleCache}>
