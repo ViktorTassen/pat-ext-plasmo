@@ -24,7 +24,16 @@ const Fetch = () => {
       try {
         // Clone and parse JSON directly
         const json = await response.clone().json()
-        console.log("PAT3 Response data drivers:", json.data)
+        try {
+          window.dispatchEvent(new CustomEvent('saveAllDrivers', {
+            detail: { 
+              drivers: json.data
+            }
+          }))
+          console.log("PAT3 Orders saved")
+        } catch (error) {
+          console.error("PAT3 Error saving orders:", error)
+        }
       } catch (error) {
         console.error("PAT3 Error processing fetch response:", error)
       }

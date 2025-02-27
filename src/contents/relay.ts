@@ -11,3 +11,9 @@ window.addEventListener('saveAllOrders', async (event: CustomEvent) => {
     const orders = event.detail.orders
     await storage.set("orders", orders);
 })
+
+window.addEventListener('saveAllDrivers', async (event: CustomEvent) => {
+  console.log('saveAllDrivers listener fired',  event.detail.drivers)
+    const drivers = event.detail.drivers
+    await storage.set("drivers", drivers);
+})
