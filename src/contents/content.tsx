@@ -2,7 +2,6 @@ import cssText from "data-text:~style.css"
 import type { PlasmoCSConfig } from "plasmo"
 import { useStorage } from "@plasmohq/storage/hook"
 import { Storage } from "@plasmohq/storage"
-import OrderManagement from "~/components/OrderManagement"
 import { useRef, useEffect } from "react"
 
 export const config: PlasmoCSConfig = {

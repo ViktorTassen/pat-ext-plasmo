@@ -2,7 +2,6 @@ import cssText from "data-text:~style.css"
 import type { PlasmoCSConfig, PlasmoGetInlineAnchorList } from "plasmo"
 import { useStorage } from "@plasmohq/storage/hook"
 import { Storage } from "@plasmohq/storage"
-import { Checkbox } from "~components/ui/checkbox"
 import { useEffect, useState } from "react"
 import { cn } from "~/lib/utils"
 
