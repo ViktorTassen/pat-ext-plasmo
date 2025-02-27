@@ -1,5 +1,5 @@
 import type { PlasmoCSConfig } from "plasmo"
-import { sendToBackground } from "@plasmohq/messaging"
+import { sendToBackground, sendToBackgroundViaRelay } from "@plasmohq/messaging"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://relay.amazon.com/loadboard/*"],
@@ -9,8 +9,10 @@ export const config: PlasmoCSConfig = {
 }
 
 
+
+
+
 const Fetch = () => {
-  console.log("PAT3 fetch")
   // Intercept fetch requests
   const originalFetch = window.fetch
   window.fetch = async function (input: RequestInfo, init?: RequestInit) {
@@ -34,17 +36,15 @@ const Fetch = () => {
         const json = await response.clone().json()
         console.log("PAT3 Intercepted fetch response from:", url)
         console.log("PAT3 Response data orders:", json.truckCapacityOrders)
-        
+
         // Use Plasmo messaging to send orders data to background
         try {
-          const response = await sendToBackground({
-            name: "saveOrders",
-            body: {
+          window.dispatchEvent(new CustomEvent('saveAllOrders', {
+            detail: { 
               orders: json.truckCapacityOrders
             }
-          })
-          
-          console.log("PAT3 Orders saved response:", response)
+          }))
+          console.log("PAT3 Orders saved")
         } catch (error) {
           console.error("PAT3 Error saving orders:", error)
         }

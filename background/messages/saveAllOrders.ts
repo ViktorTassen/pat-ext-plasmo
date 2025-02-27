@@ -11,7 +11,7 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
   try {
     // Save orders to storage
     await storage.set("orders", orders)
-    console.log("PAT3 Orders saved to storage using Plasmo messaging")
+    console.log("PAT3 Orders saved to storage using Plasmo messaging", orders)
     
     // Send success response
     res.send({
