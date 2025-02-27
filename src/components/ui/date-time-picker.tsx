@@ -40,6 +40,7 @@ export function DateTimePicker({
         buttonRef.current &&
         !buttonRef.current.contains(event.target as Node)
       ) {
+        // Only close if we're clicking outside both the picker and the button
         setShowPicker(false)
       }
     }
@@ -81,12 +82,28 @@ export function DateTimePicker({
       }
       setLocalDate(newDate)
       setDate(newDate)
+    } else {
+      // If no date is selected yet, create a new date with the selected time
+      const now = new Date()
+      if (type === "hour") {
+        now.setHours(parseInt(value))
+      } else if (type === "minute") {
+        now.setMinutes(parseInt(value))
+      }
+      setLocalDate(now)
+      setDate(now)
     }
   }
 
   // Toggle picker visibility
   const togglePicker = () => {
     setShowPicker(!showPicker)
+  }
+
+  // Handle done button click
+  const handleDoneClick = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent event from bubbling up
+    setShowPicker(false)
   }
 
   return (
@@ -111,6 +128,7 @@ export function DateTimePicker({
         <div 
           ref={pickerRef}
           className="absolute z-50 mt-1 bg-popover text-popover-foreground rounded-md border shadow-md"
+          onClick={(e) => e.stopPropagation()} // Prevent clicks from closing the picker
         >
           <div className="sm:flex">
             <Calendar
@@ -128,7 +146,10 @@ export function DateTimePicker({
                       size="icon"
                       variant={localDate && localDate.getHours() === hour ? "default" : "ghost"}
                       className="sm:w-full shrink-0 aspect-square"
-                      onClick={() => handleTimeChange("hour", hour.toString())}
+                      onClick={(e) => {
+                        e.stopPropagation() // Prevent event from bubbling up
+                        handleTimeChange("hour", hour.toString())
+                      }}
                     >
                       {hour.toString().padStart(2, '0')}
                     </Button>
@@ -144,7 +165,10 @@ export function DateTimePicker({
                       size="icon"
                       variant={localDate && localDate.getMinutes() === minute ? "default" : "ghost"}
                       className="sm:w-full shrink-0 aspect-square"
-                      onClick={() => handleTimeChange("minute", minute.toString())}
+                      onClick={(e) => {
+                        e.stopPropagation() // Prevent event from bubbling up
+                        handleTimeChange("minute", minute.toString())
+                      }}
                     >
                       {minute.toString().padStart(2, '0')}
                     </Button>
@@ -157,7 +181,7 @@ export function DateTimePicker({
           <div className="p-3 border-t flex justify-end">
             <Button 
               size="sm" 
-              onClick={() => setShowPicker(false)}
+              onClick={handleDoneClick}
             >
               Done
             </Button>

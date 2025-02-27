@@ -67,7 +67,7 @@ interface OrderManagementProps {
 
 const OrderManagement: React.FC<OrderManagementProps> = ({ onClose, shadowRoot }) => {
   // Create a ref for the portal container
-  const portalContainerRef = useRef<HTMLDivElement | null>(null)
+  const portalContainerRef = useRef<HTMLElement | null>(null)
   
   // Get selected orders from storage
   const [selectedOrders, setSelectedOrders] = useStorage({
@@ -402,7 +402,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ onClose, shadowRoot }
                     </SelectTrigger>
                     <SelectContent container={portalContainerRef.current}>
                       {stemTimeOptions.map((option) => (
-                        <SelectItem key={option} value={option}>
+                        <SelectItem key={`stem-${option}`} value={option}>
                           {option} minutes
                         </SelectItem>
                       ))}
@@ -417,7 +417,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ onClose, shadowRoot }
                     </SelectTrigger>
                     <SelectContent container={portalContainerRef.current}>
                       {radiusOptions.map((option) => (
-                        <SelectItem key={option} value={option}>
+                        <SelectItem key={`origin-${option}`} value={option}>
                           {option} miles
                         </SelectItem>
                       ))}
@@ -432,7 +432,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ onClose, shadowRoot }
                     </SelectTrigger>
                     <SelectContent container={portalContainerRef.current}>
                       {radiusOptions.map((option) => (
-                        <SelectItem key={option} value={option}>
+                        <SelectItem key={`dest-${option}`} value={option}>
                           {option} miles
                         </SelectItem>
                       ))}
@@ -446,9 +446,9 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ onClose, shadowRoot }
                       <SelectValue placeholder="Select driver" />
                     </SelectTrigger>
                     <SelectContent container={portalContainerRef.current}>
-                      {drivers.length > 0 ? (
-                        drivers.map((driver) => (
-                          <SelectItem key={driver} value={driver}>
+                      {drivers && drivers.length > 0 ? (
+                        drivers.map((driver, index) => (
+                          <SelectItem key={`driver-${index}`} value={driver}>
                             {driver}
                           </SelectItem>
                         ))
@@ -487,7 +487,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ onClose, shadowRoot }
           </div>
 
           {/* Create a container for the portal */}
-          <div ref={portalContainerRef} className="portal-container" />
+          <div className="portal-container" />
 
           <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
             <DialogContent container={portalContainerRef.current}>
