@@ -8,6 +8,7 @@ import { ThemeProvider } from "@mui/material/styles"
 import { CacheProvider } from "@emotion/react"
 import createCache from "@emotion/cache"
 import { theme } from "~/theme/mui-theme"
+import { useEffect, useRef, useState } from "react"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://relay.amazon.com/loadboard/*"],
@@ -25,7 +26,11 @@ const styleCache = createCache({
 })
 
 // Export the style element for Plasmo to use
-export const getStyle = () => styleElement
+export const getStyle = () => {
+  // Add global MUI styles directly to the style element
+  styleElement.textContent = cssText
+  return styleElement
+}
 
 // This function returns a list of elements to inject content before
 export const getInlineAnchorList: PlasmoGetInlineAnchorList = async () => {
@@ -45,17 +50,12 @@ const hideOriginalCheckboxes = () => {
   })
 }
 
+
+
 const AddCheckboxes = ({ anchor }) => {
 
-  hideOriginalCheckboxes();
-  
-  // Ensure our custom checkbox container has proper z-index
-  if (anchor.element.parentElement.querySelector('plasmo-csui')?.shadowRoot) {
-    const container = anchor.element.parentElement.querySelector('plasmo-csui').shadowRoot.querySelector('#plasmo-shadow-container')
-    if (container) {
-      container.style.zIndex = "20"
-    }
-  }
+  hideOriginalCheckboxes()
+
   
   // Extract the order ID from the element text content
   const orderIdElement = anchor.element
@@ -95,23 +95,12 @@ const AddCheckboxes = ({ anchor }) => {
   return (
     <CacheProvider value={styleCache}>
       <ThemeProvider theme={theme}>
-        <span 
-          className={cn(
-            "inline-flex items-center -ml-4",
-            "relative z-10" // Ensure our checkbox is above other elements
-          )}
-          onClick={(e) => {
-            e.stopPropagation() // Prevent click from propagating
-            e.preventDefault() // Prevent default behavior
-          }}
-        >
           <Checkbox 
             id={`checkbox-${orderId}`}
             checked={isChecked}
             onCheckedChange={handleCheckedChange}
-            className="cursor-pointer"
+            className="cursor-pointer checkbox-unique"
           />
-        </span>
       </ThemeProvider>
     </CacheProvider>
   )
