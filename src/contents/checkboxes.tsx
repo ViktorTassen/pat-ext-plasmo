@@ -3,7 +3,8 @@ import type { PlasmoCSConfig, PlasmoGetInlineAnchorList } from "plasmo"
 import { useStorage } from "@plasmohq/storage/hook"
 import { Storage } from "@plasmohq/storage"
 import { useEffect, useState } from "react"
-import { cn } from "~/lib/utils"
+import { cn } from "~lib/utils"
+import { Checkbox } from "~/components/Checkbox"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://relay.amazon.com/loadboard/*"],
@@ -16,8 +17,6 @@ export const getStyle = (): HTMLStyleElement => {
   styleElement.textContent = updatedCssText
   return styleElement
 }
-
-
 
 // This function returns a list of elements to inject content before
 export const getInlineAnchorList: PlasmoGetInlineAnchorList = async () => {
