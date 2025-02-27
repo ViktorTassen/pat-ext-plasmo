@@ -7,18 +7,21 @@
   "scripts": {
     "dev": "plasmo dev",
     "build": "plasmo build",
-    "package": "plasmo package"
+    "package": "plasmo package",
+    "shadcn": "npx shadcn-ui@latest"
   },
   "dependencies": {
-    "@emotion/cache": "^11.14.0",
-    "@emotion/react": "^11.11.3",
-    "@emotion/styled": "^11.11.0",
-    "@mui/material": "^5.15.10",
     "@plasmohq/messaging": "^0.7.1",
     "@plasmohq/storage": "^1.15.0",
+    "@radix-ui/react-checkbox": "^1.0.4",
+    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-popover": "^1.0.7",
+    "@radix-ui/react-portal": "^1.1.4",
+    "@radix-ui/react-slot": "^1.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.0",
     "date-fns": "^3.3.1",
+    "lucide-react": "^0.363.0",
     "plasmo": "0.90.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",

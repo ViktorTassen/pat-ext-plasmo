@@ -3,6 +3,7 @@ import type { PlasmoCSConfig } from "plasmo"
 import { useStorage } from "@plasmohq/storage/hook"
 import { Storage } from "@plasmohq/storage"
 import { useRef, useEffect } from "react"
+import { ShadowDomPortalProvider } from "~/lib/shadcn-portal"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://relay.amazon.com/loadboard/*"],
@@ -16,7 +17,6 @@ export const getStyle = (): HTMLStyleElement => {
   return styleElement
 }
 
-
 export const getInlineAnchor = () => {
   return {
     element: document.getElementById("show-order-table"),
@@ -25,7 +25,11 @@ export const getInlineAnchor = () => {
 }
 
 const OrderManagementButton = () => {
-  
+  return (
+    <ShadowDomPortalProvider>
+      <div>3</div>
+    </ShadowDomPortalProvider>
+  )
 }
 
 export default OrderManagementButton

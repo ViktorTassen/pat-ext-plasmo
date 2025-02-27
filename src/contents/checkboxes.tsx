@@ -3,31 +3,18 @@ import type { PlasmoCSConfig, PlasmoGetInlineAnchorList } from "plasmo"
 import { useStorage } from "@plasmohq/storage/hook"
 import { Storage } from "@plasmohq/storage"
 import { cn } from "~lib/utils"
-import { Checkbox } from "~/components/Checkbox"
-import { ThemeProvider } from "@mui/material/styles"
-import { CacheProvider } from "@emotion/react"
-import createCache from "@emotion/cache"
-import { theme } from "~/theme/mui-theme"
+import { Checkbox } from "~/components/ui/checkbox"
 import { useEffect, useRef, useState } from "react"
+import { ShadowDomPortalProvider } from "~/lib/shadcn-portal"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://relay.amazon.com/loadboard/*"],
   all_frames: true
 }
 
-// Create a style element for MUI styles
-const styleElement = document.createElement("style")
-
-// Create a cache specifically for MUI in the content script
-const styleCache = createCache({
-  key: "plasmo-mui-cache",
-  prepend: true,
-  container: styleElement
-})
-
 // Export the style element for Plasmo to use
 export const getStyle = () => {
-  // Add global MUI styles directly to the style element
+  const styleElement = document.createElement("style")
   styleElement.textContent = cssText
   return styleElement
 }
@@ -50,12 +37,8 @@ const hideOriginalCheckboxes = () => {
   })
 }
 
-
-
 const AddCheckboxes = ({ anchor }) => {
-
   hideOriginalCheckboxes()
-
   
   // Extract the order ID from the element text content
   const orderIdElement = anchor.element
@@ -91,18 +74,15 @@ const AddCheckboxes = ({ anchor }) => {
     }
   }
 
-
   return (
-    <CacheProvider value={styleCache}>
-      <ThemeProvider theme={theme}>
-          <Checkbox 
-            id={`checkbox-${orderId}`}
-            checked={isChecked}
-            onCheckedChange={handleCheckedChange}
-            className="cursor-pointer checkbox-unique"
-          />
-      </ThemeProvider>
-    </CacheProvider>
+    <ShadowDomPortalProvider>
+      <Checkbox 
+        id={`checkbox-${orderId}`}
+        checked={isChecked}
+        onCheckedChange={handleCheckedChange}
+        className="cursor-pointer checkbox-unique"
+      />
+    </ShadowDomPortalProvider>
   )
 }
 
