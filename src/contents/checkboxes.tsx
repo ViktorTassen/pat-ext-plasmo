@@ -18,6 +18,8 @@ export const getStyle = (): HTMLStyleElement => {
   return styleElement
 }
 
+
+
 // This function returns a list of elements to inject content before
 export const getInlineAnchorList: PlasmoGetInlineAnchorList = async () => {
   const anchors = document.querySelectorAll('.order-id')
@@ -37,6 +39,7 @@ const hideOriginalCheckboxes = () => {
 }
 
 const AddCheckboxes = ({ anchor }) => {
+  anchor.element.parentElement.querySelector('plasmo-csui').shadowRoot.querySelector('#plasmo-shadow-container').style.zIndex = "20"
   const [mounted, setMounted] = useState(false)
   
   useEffect(() => {
@@ -85,7 +88,7 @@ const AddCheckboxes = ({ anchor }) => {
     <span 
       className={cn(
         "inline-flex items-center -ml-4",
-        "z-10 relative" // Ensure our checkbox is above other elements
+        "relative " // Ensure our checkbox is above other elements
       )}
       onClick={(e) => e.stopPropagation()} // Prevent click from propagating
     >
