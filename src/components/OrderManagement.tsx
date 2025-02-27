@@ -81,6 +81,11 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ onClose, shadowRoot }
     instance: new Storage({ area: "local" }),
   })
 
+  const [drivers, setDrivers] = useStorage({
+    key: "drivers",
+    instance: new Storage({ area: "local" }),
+  })
+
   // State for filtered orders (orders that are selected)
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
 
@@ -96,7 +101,7 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ onClose, shadowRoot }
   const [stemTime, setStemTime] = useState<string>("")
   const [originRadius, setOriginRadius] = useState<string>("")
   const [destinationRadius, setDestinationRadius] = useState<string>("")
-  const [drivers, setDrivers] = useState<string[]>([])
+
   const [selectedDriver, setSelectedDriver] = useState<string>("")
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [operationSummary, setOperationSummary] = useState<string>("")
@@ -124,16 +129,6 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ onClose, shadowRoot }
   }, [selectedOrders, allOrders])
 
   // Load drivers from storage
-  useEffect(() => {
-    const loadDrivers = async () => {
-      const storage = new Storage({ area: "local" })
-      const savedDrivers = await storage.get("drivers")
-      if (savedDrivers) {
-        setDrivers(savedDrivers)
-      }
-    }
-    loadDrivers()
-  }, [])
 
   // Function to handle saving changes
   const handleSaveChanges = () => {
@@ -197,13 +192,6 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ onClose, shadowRoot }
     // Save updated orders to storage
     setAllOrders(updatedOrders)
     
-    // Save to background
-    sendToBackground({
-      name: "saveAllOrders",
-      body: {
-        orders: updatedOrders
-      }
-    })
     
     // Close dialog
     setShowConfirmDialog(false)
@@ -221,13 +209,6 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ onClose, shadowRoot }
     setAllOrders(updatedOrders)
     setSelectedOrders([])
     
-    // Save to background
-    sendToBackground({
-      name: "saveAllOrders",
-      body: {
-        orders: updatedOrders
-      }
-    })
   }
 
   // Function to clone orders
@@ -279,13 +260,6 @@ const OrderManagement: React.FC<OrderManagementProps> = ({ onClose, shadowRoot }
     // Save updated orders to storage
     setAllOrders(updatedOrders)
     
-    // Save to background
-    sendToBackground({
-      name: "saveAllOrders",
-      body: {
-        orders: updatedOrders
-      }
-    })
     
     // Reset form
     resetForm()
