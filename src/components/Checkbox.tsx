@@ -33,6 +33,7 @@ export const Checkbox = ({
       onChange={(e) => onCheckedChange?.(e.target.checked)}
       className={className}
       size="small"
+      disableRipple
     />
   )
 }

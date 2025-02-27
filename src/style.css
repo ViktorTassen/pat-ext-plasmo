@@ -1,3 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Add custom styles for checkboxes */
+.MuiCheckbox-root {
+  z-index: 100 !important;
+  position: relative !important;
+}
+
+/* Hide any duplicate checkboxes */
+.MuiCheckbox-root + .MuiCheckbox-root {
+  display: none !important;
+}
+
+/* Ensure our checkbox container is properly positioned */
+#plasmo-shadow-container {
+  position: relative !important;
+  z-index: 20 !important;
+  display: inline-block !important;
+}
+
+/* Fix for MUI styles in Shadow DOM */
+:host(plasmo-csui) .MuiSvgIcon-root {
+  display: inline-block;
+  fill: currentColor;
+  flex-shrink: 0;
+  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  font-size: 1.5rem;
+  user-select: none;
+}
+
+/* Ensure proper checkbox sizing */
+:host(plasmo-csui) .MuiCheckbox-root {
+  padding: 4px;
+  border-radius: 4px;
+}
