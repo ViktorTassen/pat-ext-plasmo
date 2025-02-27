@@ -84,7 +84,7 @@ const AddCheckboxes = ({ anchor }) => {
   return (
     <span 
       className={cn(
-        "inline-flex items-center",
+        "inline-flex items-center -ml-4",
         "z-10 relative" // Ensure our checkbox is above other elements
       )}
       onClick={(e) => e.stopPropagation()} // Prevent click from propagating
