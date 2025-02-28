@@ -7,6 +7,7 @@ import { ShadowDomPortalProvider } from "~/lib/shadcn-portal"
 import { BulkActionsPanel } from "~/components/BulkActionsPanel"
 import { OrderSelectionProvider, useOrderSelection } from "~/lib/order-context"
 import { Button } from "~/components/ui/button"
+import { Calendar } from "~components/ui/calendar"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://relay.amazon.com/loadboard/*"],
@@ -29,12 +30,26 @@ export const getInlineAnchor = () => {
 
 const OrderManagementButtonsInner = () => {
   const [activePanel, setActivePanel] = useState<"none" | "edit" | "clone" | "delete" | "deleteAll">("none")
-  const { selectedOrders } = useOrderSelection()
-  
+  const { selectedOrders, clearSelectedOrders } = useOrderSelection()
+  const [date, setDate] = useState<Date | undefined>(new Date())
+
   const [allOrders, setAllOrders] = useStorage({
     key: "orders",
     instance: new Storage({ area: "local" })
   })
+  
+  // Listen for URL changes to reset panel state
+  useEffect(() => {
+    const resetPanelOnNavigation = () => {
+      setActivePanel("none")
+    }
+    
+    window.addEventListener('popstate', resetPanelOnNavigation)
+    
+    return () => {
+      window.removeEventListener('popstate', resetPanelOnNavigation)
+    }
+  }, [])
   
   // Handle edit button click
   const handleEdit = () => {
@@ -75,6 +90,12 @@ const OrderManagementButtonsInner = () => {
   return (
     <div className="p-2 relative font-ember">
       <div className="flex flex-row space-x-2">
+      <Calendar
+      mode="single"
+      selected={date}
+      onSelect={setDate}
+      className="rounded-md border shadow"
+    />
         <Button 
           onClick={handleEdit}>
           Edit Selected {selectedOrders?.length ? `(${selectedOrders.length})` : ""}

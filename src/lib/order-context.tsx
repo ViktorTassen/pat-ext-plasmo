@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from "react"
-import { Storage } from "@plasmohq/storage"
 
 // Define the context type
 interface OrderSelectionContextType {
@@ -15,56 +14,60 @@ const OrderSelectionContext = createContext<OrderSelectionContextType>({
   clearSelectedOrders: () => {}
 })
 
+// Create a global state to share between context instances
+let globalSelectedOrders: string[] = [];
+const listeners: Set<(orders: string[]) => void> = new Set();
+
+// Function to update global state and notify all listeners
+const updateGlobalOrders = (orders: string[]) => {
+  globalSelectedOrders = [...orders];
+  listeners.forEach(listener => listener(globalSelectedOrders));
+};
+
 // Create a provider component
 export const OrderSelectionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [selectedOrders, setSelectedOrders] = useState<string[]>([])
-  const storage = new Storage({ area: "local" })
+  const [selectedOrders, setSelectedOrders] = useState<string[]>(globalSelectedOrders);
   
-  // Load initial state from storage
+  // Register this component as a listener for global state changes
   useEffect(() => {
-    const loadInitialState = async () => {
-      try {
-        const storedOrders = await storage.get("selectedOrders")
-        if (storedOrders && Array.isArray(storedOrders)) {
-          setSelectedOrders(storedOrders)
-        }
-      } catch (error) {
-        console.error("Error loading selected orders:", error)
-      }
-    }
+    const listener = (orders: string[]) => {
+      setSelectedOrders(orders);
+    };
     
-    loadInitialState()
-  }, [])
+    listeners.add(listener);
+    
+    return () => {
+      listeners.delete(listener);
+    };
+  }, []);
   
   // Toggle order selection
   const toggleOrderSelection = (orderId: string, isSelected: boolean) => {
-    setSelectedOrders(prev => {
-      let newSelectedOrders: string[]
-      
-      if (isSelected) {
-        // Add order ID if not already present
-        newSelectedOrders = prev.includes(orderId) ? prev : [...prev, orderId]
-      } else {
-        // Remove order ID
-        newSelectedOrders = prev.filter(id => id !== orderId)
-      }
-      
-      // Update storage
-      storage.set("selectedOrders", newSelectedOrders).catch(error => {
-        console.error("Error saving selected orders:", error)
-      })
-      
-      return newSelectedOrders
-    })
-  }
+    const newSelectedOrders = isSelected
+      ? [...globalSelectedOrders, orderId]
+      : globalSelectedOrders.filter(id => id !== orderId);
+    
+    updateGlobalOrders(newSelectedOrders);
+  };
   
   // Clear all selected orders
   const clearSelectedOrders = () => {
-    setSelectedOrders([])
-    storage.set("selectedOrders", []).catch(error => {
-      console.error("Error clearing selected orders:", error)
-    })
-  }
+    updateGlobalOrders([]);
+  };
+  
+  // Listen for URL changes to clear selection when user changes tabs
+  useEffect(() => {
+    const clearSelectionOnNavigation = () => {
+      updateGlobalOrders([]);
+    };
+    
+    // Use the popstate event to detect navigation
+    window.addEventListener('popstate', clearSelectionOnNavigation);
+    
+    return () => {
+      window.removeEventListener('popstate', clearSelectionOnNavigation);
+    };
+  }, []);
   
   return (
     <OrderSelectionContext.Provider value={{ 
@@ -74,8 +77,8 @@ export const OrderSelectionProvider: React.FC<{ children: React.ReactNode }> = (
     }}>
       {children}
     </OrderSelectionContext.Provider>
-  )
-}
+  );
+};
 
 // Create a hook to use the context
-export const useOrderSelection = () => useContext(OrderSelectionContext)
+export const useOrderSelection = () => useContext(OrderSelectionContext);

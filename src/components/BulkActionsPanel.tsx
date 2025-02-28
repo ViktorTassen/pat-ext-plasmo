@@ -6,8 +6,8 @@ import { cn } from "~/lib/utils"
 import { useOrderSelection } from "~/lib/order-context"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
-import { format } from "date-fns"
 import { X } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 
 // Define option types
 type RadiusOption = 5 | 10 | 15 | 25 | 50 | 75 | 100
@@ -33,10 +33,8 @@ export const BulkActionsPanel: React.FC<BulkActionsPanelProps> = ({
   }, [initialMode])
   
   // Form states
-  const [startDate, setStartDate] = useState("")
-  const [startTime, setStartTime] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [endTime, setEndTime] = useState("")
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined)
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined)
   
   const [minDistance, setMinDistance] = useState(0)
   const [maxDistance, setMaxDistance] = useState(0)
@@ -152,27 +150,7 @@ export const BulkActionsPanel: React.FC<BulkActionsPanelProps> = ({
         
         {/* Dates Tab */}
         <TabsContent value="dates" className="space-y-4">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-foreground">Move Start Date</label>
-            <div className="grid grid-cols-2 gap-2">
-              <Input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </div>
-          </div>
           
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-foreground">Move End Date</label>
-            <div className="grid grid-cols-2 gap-2">
-              <Input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </div>
-          </div>
         </TabsContent>
         
         {/* Distance & Payout Tab */}
@@ -236,44 +214,60 @@ export const BulkActionsPanel: React.FC<BulkActionsPanelProps> = ({
           
           <div className="space-y-2">
             <label className="block text-sm font-medium text-foreground">Stem Time (minutes)</label>
-            <select
-              value={stemTime}
-              onChange={(e) => setStemTime(Number(e.target.value) as StemTimeOption)}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            <Select
+              value={stemTime.toString()}
+              onValueChange={(value) => setStemTime(Number(value) as StemTimeOption)}
             >
-              {[5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 360, 480, 720, 1440].map((time) => (
-                <option key={time} value={time}>
-                  {time} {time === 1440 ? "(24 hours)" : ""}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select stem time" />
+              </SelectTrigger>
+              <SelectContent>
+                {[5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 360, 480, 720, 1440].map((time) => (
+                  <SelectItem key={time} value={time.toString()}>
+                    {time} {time === 1440 ? "(24 hours)" : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-foreground">Origin Radius (miles)</label>
-              <select
-                value={originRadius}
-                onChange={(e) => setOriginRadius(Number(e.target.value) as RadiusOption)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              <Select
+                value={originRadius.toString()}
+                onValueChange={(value) => setOriginRadius(Number(value) as RadiusOption)}
               >
-                {[5, 10, 15, 25, 50, 75, 100].map((radius) => (
-                  <option key={radius} value={radius}>{radius}</option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select radius" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[5, 10, 15, 25, 50, 75, 100].map((radius) => (
+                    <SelectItem key={radius} value={radius.toString()}>
+                      {radius}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="space-y-2">
               <label className="block text-sm font-medium text-foreground">Destination Radius (miles)</label>
-              <select
-                value={destinationRadius}
-                onChange={(e) => setDestinationRadius(Number(e.target.value) as RadiusOption)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              <Select
+                value={destinationRadius.toString()}
+                onValueChange={(value) => setDestinationRadius(Number(value) as RadiusOption)}
               >
-                {[5, 10, 15, 25, 50, 75, 100].map((radius) => (
-                  <option key={radius} value={radius}>{radius}</option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select radius" />
+                </SelectTrigger>
+                <SelectContent>
+                  {[5, 10, 15, 25, 50, 75, 100].map((radius) => (
+                    <SelectItem key={radius} value={radius.toString()}>
+                      {radius}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </TabsContent>

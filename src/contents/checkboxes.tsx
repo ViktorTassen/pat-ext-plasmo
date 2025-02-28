@@ -1,11 +1,10 @@
 import cssText from "data-text:~style.css"
 import type { PlasmoCSConfig, PlasmoGetInlineAnchorList } from "plasmo"
-import { useStorage } from "@plasmohq/storage/hook"
-import { Storage } from "@plasmohq/storage"
 import { cn } from "~lib/utils"
 import { Checkbox } from "~/components/ui/checkbox"
 import { useEffect, useRef, useState } from "react"
 import { ShadowDomPortalProvider } from "~/lib/shadcn-portal"
+import { OrderSelectionProvider, useOrderSelection } from "~/lib/order-context"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://relay.amazon.com/loadboard/*"],
@@ -38,52 +37,55 @@ const hideOriginalCheckboxes = () => {
 }
 
 const AddCheckboxes = ({ anchor }) => {
-  anchor.element.parentElement.querySelector(':scope > plasmo-csui').shadowRoot.querySelector('#plasmo-shadow-container').style.zIndex = "1";
+  // Make sure our checkbox is visible and positioned correctly
+  if (anchor.element.parentElement.querySelector(':scope > plasmo-csui')?.shadowRoot) {
+    const shadowContainer = anchor.element.parentElement.querySelector(':scope > plasmo-csui').shadowRoot.querySelector('#plasmo-shadow-container');
+    if (shadowContainer) {
+      shadowContainer.style.zIndex = "1";
+    }
+  }
+  
   hideOriginalCheckboxes()
   
   // Extract the order ID from the element text content
   const orderIdElement = anchor.element
   const orderId = orderIdElement.textContent.trim()
   
-  // Use the storage hook to manage selected orders
-  const [selectedOrders, setSelectedOrders] = useStorage({
-    key: "selectedOrders",
-    instance: new Storage({
-      area: "local"
-    }),
-  })
+  return (
+    <ShadowDomPortalProvider>
+      <OrderSelectionProvider>
+        <CheckboxWithContext orderId={orderId} />
+      </OrderSelectionProvider>
+    </ShadowDomPortalProvider>
+  )
+}
+
+// Separate component to use context
+const CheckboxWithContext = ({ orderId }) => {
+  const { selectedOrders, toggleOrderSelection } = useOrderSelection()
   
-  // Check if this order ID is in the array
-  const isChecked = selectedOrders?.includes(orderId) || false
+  // Local state to track checkbox state
+  const [isChecked, setIsChecked] = useState(false)
+  
+  // Sync with context on mount and when selectedOrders changes
+  useEffect(() => {
+    const isSelected = selectedOrders?.includes(orderId) || false
+    setIsChecked(isSelected)
+  }, [selectedOrders, orderId])
   
   // Handle checkbox changes
-  const handleCheckedChange = (checked) => {
-    console.log("Checkbox changed:", orderId, checked)
-    
-    if (checked) {
-      // Add order ID to array if not already present
-      if (!selectedOrders?.includes(orderId)) {
-        const newSelectedOrders = [...(selectedOrders || []), orderId]
-        console.log("Adding to selected orders:", newSelectedOrders)
-        setSelectedOrders(newSelectedOrders)
-      }
-    } else {
-      // Remove order ID from array
-      const newSelectedOrders = (selectedOrders || []).filter(id => id !== orderId)
-      console.log("Removing from selected orders:", newSelectedOrders)
-      setSelectedOrders(newSelectedOrders)
-    }
+  const handleCheckedChange = (checked: boolean) => {
+    setIsChecked(checked)
+    toggleOrderSelection(orderId, checked)
   }
 
   return (
-    <ShadowDomPortalProvider>
-      <Checkbox 
-        id={`checkbox-${orderId}`}
-        checked={isChecked}
-        onCheckedChange={handleCheckedChange}
-        className="cursor-pointer checkbox-unique"
-      />
-    </ShadowDomPortalProvider>
+    <Checkbox 
+      id={`checkbox-${orderId}`}
+      checked={isChecked}
+      onCheckedChange={handleCheckedChange}
+      className="cursor-pointer checkbox-unique"
+    />
   )
 }
 
