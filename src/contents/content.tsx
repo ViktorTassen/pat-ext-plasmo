@@ -90,12 +90,6 @@ const OrderManagementButtonsInner = () => {
   return (
     <div className="p-2 relative font-ember">
       <div className="flex flex-row space-x-2">
-      <Calendar
-      mode="single"
-      selected={date}
-      onSelect={setDate}
-      className="rounded-md border shadow"
-    />
         <Button 
           onClick={handleEdit}>
           Edit Selected {selectedOrders?.length ? `(${selectedOrders.length})` : ""}
