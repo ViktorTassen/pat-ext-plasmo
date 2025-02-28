@@ -1,11 +1,11 @@
 import cssText from "data-text:~style.css"
 import type { PlasmoCSConfig, PlasmoGetInlineAnchorList } from "plasmo"
+import { useStorage } from "@plasmohq/storage/hook"
 import { Storage } from "@plasmohq/storage"
 import { cn } from "~lib/utils"
 import { Checkbox } from "~/components/ui/checkbox"
 import { useEffect, useRef, useState } from "react"
 import { ShadowDomPortalProvider } from "~/lib/shadcn-portal"
-import { useOrderSelection } from "~/lib/order-context"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://relay.amazon.com/loadboard/*"],
@@ -38,14 +38,20 @@ const hideOriginalCheckboxes = () => {
 }
 
 const AddCheckboxes = ({ anchor }) => {
+  anchor.element.parentElement.querySelector(':scope > plasmo-csui').shadowRoot.querySelector('#plasmo-shadow-container').style.zIndex = "1";
   hideOriginalCheckboxes()
   
   // Extract the order ID from the element text content
   const orderIdElement = anchor.element
   const orderId = orderIdElement.textContent.trim()
   
-  // Use the context for selected orders
-  const { selectedOrders, toggleOrderSelection } = useOrderSelection()
+  // Use the storage hook to manage selected orders
+  const [selectedOrders, setSelectedOrders] = useStorage({
+    key: "selectedOrders",
+    instance: new Storage({
+      area: "local"
+    }),
+  })
   
   // Check if this order ID is in the array
   const isChecked = selectedOrders?.includes(orderId) || false
@@ -53,7 +59,20 @@ const AddCheckboxes = ({ anchor }) => {
   // Handle checkbox changes
   const handleCheckedChange = (checked) => {
     console.log("Checkbox changed:", orderId, checked)
-    toggleOrderSelection(orderId, checked)
+    
+    if (checked) {
+      // Add order ID to array if not already present
+      if (!selectedOrders?.includes(orderId)) {
+        const newSelectedOrders = [...(selectedOrders || []), orderId]
+        console.log("Adding to selected orders:", newSelectedOrders)
+        setSelectedOrders(newSelectedOrders)
+      }
+    } else {
+      // Remove order ID from array
+      const newSelectedOrders = (selectedOrders || []).filter(id => id !== orderId)
+      console.log("Removing from selected orders:", newSelectedOrders)
+      setSelectedOrders(newSelectedOrders)
+    }
   }
 
   return (
