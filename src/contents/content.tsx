@@ -8,6 +8,7 @@ import { BulkActionsPanel } from "~/components/BulkActionsPanel"
 import { OrderSelectionProvider, useOrderSelection } from "~/lib/order-context"
 import { Button } from "~/components/ui/button"
 import { Calendar } from "~components/ui/calendar"
+import { DatePicker } from "~components/DatePicker"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://relay.amazon.com/loadboard/*"],
@@ -90,6 +91,7 @@ const OrderManagementButtonsInner = () => {
   return (
     <div className="p-2 relative font-ember">
       <div className="flex flex-row space-x-2">
+        <DatePicker />
         <Button 
           onClick={handleEdit}>
           Edit Selected {selectedOrders?.length ? `(${selectedOrders.length})` : ""}
