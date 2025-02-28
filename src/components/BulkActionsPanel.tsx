@@ -4,7 +4,6 @@ import { useStorage } from "@plasmohq/storage/hook"
 import { Storage } from "@plasmohq/storage"
 import { cn } from "~/lib/utils"
 import { useOrderSelection } from "~/lib/order-context"
-import { TimePickerInput } from "~/components/ui/time-picker-input"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { format } from "date-fns"
@@ -161,11 +160,6 @@ export const BulkActionsPanel: React.FC<BulkActionsPanelProps> = ({
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
               />
-              <TimePickerInput
-                value={startTime}
-                onTimeChange={setStartTime}
-                className="rounded-md border-input"
-              />
             </div>
           </div>
           
@@ -176,11 +170,6 @@ export const BulkActionsPanel: React.FC<BulkActionsPanelProps> = ({
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-              />
-              <TimePickerInput
-                value={endTime}
-                onTimeChange={setEndTime}
-                className="rounded-md border-input"
               />
             </div>
           </div>
