@@ -6,7 +6,9 @@ import { cn } from "~/lib/utils"
 import { useOrderSelection } from "~/lib/order-context"
 import { TimePickerInput } from "~/components/ui/time-picker-input"
 import { Button } from "~/components/ui/button"
+import { Input } from "~/components/ui/input"
 import { format } from "date-fns"
+import { X } from "lucide-react"
 
 // Define option types
 type RadiusOption = 5 | 10 | 15 | 25 | 50 | 75 | 100
@@ -115,7 +117,7 @@ export const BulkActionsPanel: React.FC<BulkActionsPanelProps> = ({
   
   // Render the edit/clone form
   const renderEditForm = () => (
-    <div className="bg-background p-6 rounded-md shadow-md border border-input">
+    <div className="bg-background p-6 rounded-md shadow-md border border-input relative">
       <h3 className="text-lg font-bold text-amazon-blue mb-4">
         {mode === "edit" 
           ? `Edit ${selectedOrders?.length} Selected Orders` 
@@ -123,11 +125,12 @@ export const BulkActionsPanel: React.FC<BulkActionsPanelProps> = ({
       </h3>
 
       <Button 
-          variant="ghost"
-          onClick={onClose}
-          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground rounded-full hover:bg-amazon-gray-light">
-          ✕
-        </Button>
+        variant="ghost"
+        onClick={onClose}
+        className="absolute right-4 top-4 h-8 w-8 p-0 rounded-full hover:bg-amazon-gray-light"
+        aria-label="Close">
+        <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+      </Button>
       
       <Tabs defaultValue="dates" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="w-full grid grid-cols-3 bg-amazon-gray-light rounded-sm mb-4">
@@ -153,11 +156,10 @@ export const BulkActionsPanel: React.FC<BulkActionsPanelProps> = ({
           <div className="space-y-2">
             <label className="block text-sm font-medium text-foreground">Move Start Date</label>
             <div className="grid grid-cols-2 gap-2">
-              <input
+              <Input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               />
               <TimePickerInput
                 value={startTime}
@@ -170,11 +172,10 @@ export const BulkActionsPanel: React.FC<BulkActionsPanelProps> = ({
           <div className="space-y-2">
             <label className="block text-sm font-medium text-foreground">Move End Date</label>
             <div className="grid grid-cols-2 gap-2">
-              <input
+              <Input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               />
               <TimePickerInput
                 value={endTime}
@@ -192,20 +193,18 @@ export const BulkActionsPanel: React.FC<BulkActionsPanelProps> = ({
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="block text-xs text-muted-foreground">Minimum</label>
-                <input
+                <Input
                   type="number"
                   value={minDistance}
                   onChange={(e) => setMinDistance(Number(e.target.value))}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 />
               </div>
               <div>
                 <label className="block text-xs text-muted-foreground">Maximum</label>
-                <input
+                <Input
                   type="number"
                   value={maxDistance}
                   onChange={(e) => setMaxDistance(Number(e.target.value))}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 />
               </div>
             </div>
@@ -216,20 +215,18 @@ export const BulkActionsPanel: React.FC<BulkActionsPanelProps> = ({
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="block text-xs text-muted-foreground">Minimum Payout ($)</label>
-                <input
+                <Input
                   type="number"
                   value={minPayout}
                   onChange={(e) => setMinPayout(Number(e.target.value))}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 />
               </div>
               <div>
                 <label className="block text-xs text-muted-foreground">Min Price/Mile ($)</label>
-                <input
+                <Input
                   type="number"
                   value={minPricePerMile}
                   onChange={(e) => setMinPricePerMile(Number(e.target.value))}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   step="0.01"
                 />
               </div>
@@ -241,11 +238,10 @@ export const BulkActionsPanel: React.FC<BulkActionsPanelProps> = ({
         <TabsContent value="stops" className="space-y-4">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-foreground">Maximum Stops</label>
-            <input
+            <Input
               type="number"
               value={maxStops}
               onChange={(e) => setMaxStops(Number(e.target.value))}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             />
           </div>
           

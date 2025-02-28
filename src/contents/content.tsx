@@ -7,6 +7,7 @@ import { ShadowDomPortalProvider } from "~/lib/shadcn-portal"
 import { BulkActionsPanel } from "~/components/BulkActionsPanel"
 import { OrderSelectionProvider, useOrderSelection } from "~/lib/order-context"
 import { Button } from "~/components/ui/button"
+import { TimePickerDemo } from "~components/TimePickerDemo"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://relay.amazon.com/loadboard/*"],
@@ -73,8 +74,9 @@ const OrderManagementButtonsInner = () => {
   }
   
   return (
-    <div className="p-2 relative">
+    <div className="p-2 relative font-ember">
       <div className="flex flex-row space-x-2">
+        <TimePickerDemo />
         <Button 
           onClick={handleEdit}>
           Edit Selected {selectedOrders?.length ? `(${selectedOrders.length})` : ""}
@@ -99,7 +101,7 @@ const OrderManagementButtonsInner = () => {
       </div>
       
       {activePanel !== "none" && (
-        <div className="absolute left-0 mt-2 z-50">
+        <div className="absolute left-0 mt-2 z-50 ">
           <BulkActionsPanel 
             initialMode={activePanel} 
             onClose={() => setActivePanel("none")} 
