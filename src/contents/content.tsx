@@ -2,8 +2,11 @@ import cssText from "data-text:~style.css"
 import type { PlasmoCSConfig } from "plasmo"
 import { useStorage } from "@plasmohq/storage/hook"
 import { Storage } from "@plasmohq/storage"
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import { ShadowDomPortalProvider } from "~/lib/shadcn-portal"
+import { BulkActionsPanel } from "~/components/BulkActionsPanel"
+import { OrderSelectionProvider, useOrderSelection } from "~/lib/order-context"
+import { Button } from "~/components/ui/button"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://relay.amazon.com/loadboard/*"],
@@ -24,12 +27,97 @@ export const getInlineAnchor = () => {
   }
 }
 
-const OrderManagementButton = () => {
+const OrderManagementButtonsInner = () => {
+  const [activePanel, setActivePanel] = useState<"none" | "edit" | "clone" | "delete" | "deleteAll">("none")
+  const { selectedOrders } = useOrderSelection()
+  
+  const [allOrders, setAllOrders] = useStorage({
+    key: "orders",
+    instance: new Storage({ area: "local" })
+  })
+  
+  // Handle edit button click
+  const handleEdit = () => {
+    if (!selectedOrders || selectedOrders.length === 0) {
+      alert("No orders selected for editing")
+      return
+    }
+    setActivePanel("edit")
+  }
+  
+  // Handle clone button click
+  const handleClone = () => {
+    if (!selectedOrders || selectedOrders.length === 0) {
+      alert("No orders selected for cloning")
+      return
+    }
+    setActivePanel("clone")
+  }
+  
+  // Handle delete selected button click
+  const handleDeleteSelected = () => {
+    if (!selectedOrders || selectedOrders.length === 0) {
+      alert("No orders selected for deletion")
+      return
+    }
+    setActivePanel("delete")
+  }
+  
+  // Handle delete all button click
+  const handleDeleteAll = () => {
+    if (!allOrders || allOrders.length === 0) {
+      alert("No orders to delete")
+      return
+    }
+    setActivePanel("deleteAll")
+  }
+  
+  return (
+    <div className="p-2 relative">
+      <div className="flex flex-row space-x-2">
+        <Button 
+          onClick={handleEdit}>
+          Edit Selected {selectedOrders?.length ? `(${selectedOrders.length})` : ""}
+        </Button>
+        
+        <Button 
+          onClick={handleClone}>
+          Clone Selected {selectedOrders?.length ? `(${selectedOrders.length})` : ""}
+        </Button>
+        
+        <Button 
+          onClick={handleDeleteSelected}
+          variant="destructive">
+          Delete Selected {selectedOrders?.length ? `(${selectedOrders.length})` : ""}
+        </Button>
+        
+        <Button 
+          onClick={handleDeleteAll}
+          variant="destructive">
+          Delete All
+        </Button>
+      </div>
+      
+      {activePanel !== "none" && (
+        <div className="absolute left-0 mt-2 z-50">
+          <BulkActionsPanel 
+            initialMode={activePanel} 
+            onClose={() => setActivePanel("none")} 
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+const OrderManagementButtons = () => {
   return (
     <ShadowDomPortalProvider>
-      <div>3</div>
+      <OrderSelectionProvider>
+        <OrderManagementButtonsInner />
+      </OrderSelectionProvider>
     </ShadowDomPortalProvider>
   )
 }
 
-export default OrderManagementButton
+export default OrderManagementButtons

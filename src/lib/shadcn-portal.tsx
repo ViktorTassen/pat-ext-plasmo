@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { createPortal } from "react-dom"
 
 /**
@@ -13,13 +13,24 @@ export const ShadowPortal = ({
   container?: Element | DocumentFragment
 }) => {
   const [portalContainer, setPortalContainer] = useState<Element | DocumentFragment | null>(null)
+  const [shadowRoot, setShadowRoot] = useState<ShadowRoot | null>(null)
   
   useEffect(() => {
-    // If the target is document.body, find the shadow root instead
-    if (container === document.body) {
+    // Find the Plasmo shadow root
+    const findShadowRoot = () => {
       const plasmoRoot = document.querySelector("plasmo-csui")
       if (plasmoRoot && plasmoRoot.shadowRoot) {
-        setPortalContainer(plasmoRoot.shadowRoot)
+        setShadowRoot(plasmoRoot.shadowRoot)
+        return plasmoRoot.shadowRoot
+      }
+      return null
+    }
+    
+    // If the target is document.body, find the shadow root instead
+    if (container === document.body) {
+      const root = findShadowRoot()
+      if (root) {
+        setPortalContainer(root)
         return
       }
     }
@@ -37,14 +48,24 @@ export const ShadowPortal = ({
 /**
  * Context provider for shadow DOM portals
  */
-const ShadowDomContext = React.createContext<boolean>(false)
+const ShadowDomContext = React.createContext<ShadowRoot | null>(null)
 
 /**
  * Component that provides shadow DOM context
  */
 export function ShadowDomPortalProvider({ children }: { children: React.ReactNode }) {
+  const [shadowRoot, setShadowRoot] = useState<ShadowRoot | null>(null)
+  
+  useEffect(() => {
+    // Find the Plasmo shadow root
+    const plasmoRoot = document.querySelector("plasmo-csui")
+    if (plasmoRoot && plasmoRoot.shadowRoot) {
+      setShadowRoot(plasmoRoot.shadowRoot)
+    }
+  }, [])
+  
   return (
-    <ShadowDomContext.Provider value={true}>
+    <ShadowDomContext.Provider value={shadowRoot}>
       {children}
     </ShadowDomContext.Provider>
   )
